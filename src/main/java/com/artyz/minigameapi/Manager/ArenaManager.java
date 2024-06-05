@@ -26,7 +26,7 @@ public class ArenaManager {
             for (String key : config.getConfigurationSection("arenas").getKeys(false)) {
                 try {
                     int id = Integer.parseInt(key);
-                    arenas.add(new Arena(id, arenasLocation));
+                    arenas.add(new Arena(plugin,id, arenasLocation));
                 } catch (NumberFormatException e) {
                     // Ignore non-integer keys
                 }
