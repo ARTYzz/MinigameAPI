@@ -1,7 +1,9 @@
 package com.artyz.minigameapi.Instance;
 
+import com.artyz.minigameapi.Manager.GameLobbyManager;
 import com.artyz.minigameapi.Manager.LobbyManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +14,7 @@ import java.util.UUID;
 
 public class Arena {
 
-    private int id;
+    private String id;
     private Location spawn;
 
     private List<UUID> players;
@@ -21,16 +23,16 @@ public class Arena {
     private Game game;
     private JavaPlugin main;
 
-    public Arena(JavaPlugin main,  int id, Location spawn){
+    public Arena(JavaPlugin main, String id, Location spawn,Game game){
         this.main = main;
 
         this.id = id;
         this.spawn = spawn;
+        this.game = game;
 
         this.state = GameState.RECRUITING;
         this.players = new ArrayList<>();
-        this.countdown = new Countdown(main,this);
-        this.game = new Game(this);
+
     }
 
     /* GAMES */
@@ -39,17 +41,17 @@ public class Arena {
 
     public void reset(boolean kickPlayers){
         if (kickPlayers){
-            Location loc = LobbyManager.getLobbySpawn();
+            Location loc = GameLobbyManager.getLobbySpawn();
             for (UUID uuid : players){
                 Bukkit.getPlayer(uuid).teleport(loc);
             }
             players.clear();
         }
 
+        sendTitle("","");
         state = GameState.RECRUITING;
         countdown.cancel();
-        countdown = new Countdown(main,this);
-        game = new Game(this);
+        game.reset();
 
     }
 
@@ -73,25 +75,37 @@ public class Arena {
         players.add(player.getUniqueId());
         player.teleport(spawn);
 
-        if (state.equals(GameState.RECRUITING) && players.size() >= LobbyManager.getRequiredPlayers()){
-            countdown.start();
-        }
-
     }
 
     public void removePlayer(Player player){
         players.remove(player.getUniqueId());
-        player.teleport(LobbyManager.getLobbySpawn());
+        player.teleport(GameLobbyManager.getLobbySpawn());
+        player.sendTitle("","");
+
+        if (state == GameState.COUNTDOWN && players.size() < LobbyManager.getRequiredPlayers()){
+            sendMessage(ChatColor.RED + "There is not enough player. Countdown stopped!");
+            reset(false);
+            return;
+        }
+
+        if (state == GameState.LIVE && players.size() < LobbyManager.getRequiredPlayers()){
+            sendMessage(ChatColor.RED + "The Game has ended as too many players have left");
+            reset(true);
+        }
+
     }
 
     /*INFO*/
 
-    public int getId(){return id;}
+    public String getId(){return id;}
 
     public GameState getState(){return state;}
     public List<UUID> getPlayers(){return players;}
 
     public void setState(GameState state){this.state = state;}
 
+    public void setGame(Game game) {
+        this.game = game;
+    }
 
 }

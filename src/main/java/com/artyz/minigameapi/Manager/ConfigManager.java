@@ -39,26 +39,43 @@ public class ConfigManager {
 
     public void setupDefaultConfig() {
         if (!config.contains("required-players")){
-            config.set("required=players",2);
+            config.set("required-players",2);
             save();
         }
+
 
         if (!config.contains("countdown-seconds")){
             config.set("countdown-seconds",5);
             save();
         }
 
-        if (!config.contains("lobby-spawn.world")) {
-            config.set("lobby-spawn.world", "world");
-            config.set("lobby-spawn.x", 0.0);
-            config.set("lobby-spawn.y", 0.0);
-            config.set("lobby-spawn.z", 0.0);
-            config.set("lobby-spawn.yaw", 0.0);
-            config.set("lobby-spawn.pitch", 0.0);
+        if (!config.contains("game-spawn.world")){
+            config.set("game-spawn.world", "world");
+            config.set("game-spawn.x", 0.0);
+            config.set("game-spawn.y", 0.0);
+            config.set("game-spawn.z", 0.0);
+            config.set("game-spawn.yaw", 0.0);
+            config.set("game-spawn.pitch", 0.0);
             save();
         }
-        if (!config.contains("arenas")) {
-            config.createSection("arenas");
+
+        if (!config.contains("Lobby.0")){
+            config.set("Lobby.0.world", "world");
+            config.set("Lobby.0.x", 0.0);
+            config.set("Lobby.0.y", 0.0);
+            config.set("Lobby.0.z", 0.0);
+            config.set("Lobby.0.yaw", 0.0);
+            config.set("Lobby.0.pitch", 0.0);
+            save();
+        }
+
+        if (!config.contains("arenas.0")){
+            config.set("arenas.0.world", "world");
+            config.set("arenas.0.x", 0.0);
+            config.set("arenas.0.y", 0.0);
+            config.set("arenas.0.z", 0.0);
+            config.set("arenas.0.yaw", 0.0);
+            config.set("arenas.0.pitch", 0.0);
             save();
         }
         save();
@@ -77,7 +94,7 @@ public class ConfigManager {
         }
     }
 
-    public void reloadConfig() {
+    public static void reloadConfig() {
         if (file != null) {
             config = YamlConfiguration.loadConfiguration(file);
         }

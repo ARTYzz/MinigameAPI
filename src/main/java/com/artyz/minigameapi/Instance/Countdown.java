@@ -9,17 +9,19 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Countdown  extends BukkitRunnable {
 
     private JavaPlugin main;
-    private Arena arena;
+    private Lobby lobby;
+    private Game game;
     private int countdownSeconds;
 
-    public Countdown(JavaPlugin main,Arena arena){
+    public Countdown(JavaPlugin main,Game game,Lobby lobby){
         this.main = main;
-        this.arena = arena;
+        this.lobby = lobby;
+        this.game = game;
         this.countdownSeconds = LobbyManager.getCountdownSeconds();
     }
 
     public void start(){
-        arena.setState(GameState.COUNTDOWN);
+        lobby.setState(GameState.COUNTDOWN);
         runTaskTimer(main,0,20);
     }
 
@@ -27,13 +29,15 @@ public class Countdown  extends BukkitRunnable {
     public void run() {
         if (countdownSeconds == 0){
             cancel();
-            arena.start();
+            lobby.startGame(game);
             return;
         }
 
         if (countdownSeconds <= 10 || countdownSeconds % 15 == 0){
-            arena.sendMessage(ChatColor.GREEN + "Game will start in " + countdownSeconds + "second" + (countdownSeconds == 1 ? "" : "s") + ".");
+            lobby.sendMessage(ChatColor.GREEN + "Game will start in " + countdownSeconds + " second" + (countdownSeconds == 1 ? "" : "s") + ".");
         }
+
+        lobby.sendTitle(ChatColor.GREEN.toString() + countdownSeconds + " second" + (countdownSeconds == 1 ? "" : "s"),ChatColor.GRAY + "until game starts");
 
         countdownSeconds--;
     }
