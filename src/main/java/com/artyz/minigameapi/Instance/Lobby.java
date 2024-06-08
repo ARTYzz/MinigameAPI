@@ -1,5 +1,6 @@
 package com.artyz.minigameapi.Instance;
 
+import com.artyz.minigameapi.Manager.ArenaManager;
 import com.artyz.minigameapi.Manager.GameLobbyManager;
 import com.artyz.minigameapi.Manager.LobbyManager;
 import com.artyz.minigameapi.Team.Team;
@@ -9,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,10 +36,13 @@ public class Lobby {
         this.spawn = spawn;
         this.game = game;
 
+        this.setGame(game);
         this.state = GameState.RECRUITING;
         this.players = new ArrayList<>();
         this.teams = new HashMap<>();
         this.countdown = new Countdown(main,game,this);
+
+        main.getLogger().info("Lobby initialized with game: " + game);
     }
 
     /* LOBBY ACTIONS */
@@ -47,16 +52,28 @@ public class Lobby {
         // This should transition to an Arena or actual game start
         sendMessage(ChatColor.GREEN + "Game is starting!");
         // You may want to create a new Arena instance and transfer players
-        Arena arena = new Arena(main , id ,spawn,game);
+        Arena arena = new Arena(main , id , ArenaManager.getArenaSpawn());
+        arena.setGame(game);
+
         for (UUID uuid : players) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
                 arena.addPlayer(player);
             }
         }
+        arena.setGame(game);
         arena.setState(GameState.LIVE);
         arena.start();
         reset(false); // Reset the lobby but do not kick players
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+        this.countdown = new Countdown(main,game,this);
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public void reset(boolean kickPlayers){

@@ -21,16 +21,18 @@ public class ArenaManager {
     private static Location lobbyLocation;
     private static FileConfiguration config;
     private List<Arena> arenas = new ArrayList<>();
+    private Game game;
 
     public ArenaManager(JavaPlugin plugin, ConfigManager configManager) {
         this.configManager = configManager;
         this.config = configManager.getConfig();
+        this.game = game;
 
         loadArenaLocation();
         if (config.contains("arenas")) {
             for (String key : config.getConfigurationSection("arenas").getKeys(false)) {
                 try {;
-                    arenas.add(new Arena(plugin,key, lobbyLocation,null));
+                    arenas.add(new Arena(plugin,key, lobbyLocation));
                 } catch (NumberFormatException e) {
                     // Ignore non-integer keys
                 }
@@ -89,6 +91,10 @@ public class ArenaManager {
     }
 
     public static Location getArenaSpawn(){return lobbyLocation;}
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
 
 }
 

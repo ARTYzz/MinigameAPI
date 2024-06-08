@@ -1,6 +1,7 @@
 package com.artyz.minigameapi.Manager;
 
 import com.artyz.minigameapi.Instance.Arena;
+import com.artyz.minigameapi.Instance.Game;
 import com.artyz.minigameapi.Instance.Lobby;
 import com.artyz.minigameapi.Manager.ConfigManager;
 import org.bukkit.Bukkit;
@@ -20,16 +21,18 @@ public class LobbyManager {
     private static Location lobbyLocation;
     private static FileConfiguration config;
     private List<Lobby> lobbys = new ArrayList<>();
+    private Game game;
 
-    public LobbyManager(JavaPlugin plugin, ConfigManager configManager) {
+    public LobbyManager(JavaPlugin plugin, ConfigManager configManager,Game game) {
         this.configManager = configManager;
         this.config = configManager.getConfig();
+        this.game = game;
 
         loadLobbyLocation();
         if (config.contains("Lobby")) {
             for (String key : config.getConfigurationSection("Lobby").getKeys(false)) {
                 try {;
-                    lobbys.add(new Lobby(plugin,key, lobbyLocation,null));
+                    lobbys.add(new Lobby(plugin,key, lobbyLocation,game));
                 } catch (NumberFormatException e) {
                     // Ignore non-integer keys
                 }
@@ -78,9 +81,19 @@ public class LobbyManager {
         return null;
     }
 
-    public Lobby getLobbys(String id){
+    public Lobby getLobby(String id){
         for (Lobby lobby : lobbys){
             if (lobby.getId().equals(id)){
+                return lobby;
+            }
+        }
+        return null;
+    }
+
+    public Lobby getLobbys(String id, Game game){
+        for (Lobby lobby : lobbys){
+            if (lobby.getId().equals(id)){
+                lobby.setGame(game);
                 return lobby;
             }
         }

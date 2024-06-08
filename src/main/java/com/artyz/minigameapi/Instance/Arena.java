@@ -23,7 +23,7 @@ public class Arena {
     private Game game;
     private JavaPlugin main;
 
-    public Arena(JavaPlugin main, String id, Location spawn,Game game){
+    public Arena(JavaPlugin main, String id, Location spawn){
         this.main = main;
 
         this.id = id;
@@ -37,7 +37,21 @@ public class Arena {
 
     /* GAMES */
 
-    public void start(){game.start();}
+    public void start() {
+        if (game != null) {
+            game.start();
+        } else {
+            sendMessage(ChatColor.RED + "No game instance set!");
+        }
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public Game getGame() {
+        return game;
+    }
 
     public void reset(boolean kickPlayers){
         if (kickPlayers){
@@ -104,8 +118,5 @@ public class Arena {
 
     public void setState(GameState state){this.state = state;}
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
 
 }

@@ -18,6 +18,8 @@ public class Countdown  extends BukkitRunnable {
         this.lobby = lobby;
         this.game = game;
         this.countdownSeconds = LobbyManager.getCountdownSeconds();
+
+        main.getLogger().info("Countdown initialized with game: " + game);
     }
 
     public void start(){
@@ -29,6 +31,7 @@ public class Countdown  extends BukkitRunnable {
     public void run() {
         if (countdownSeconds == 0){
             cancel();
+            main.getLogger().info("Countdown ended, starting game: " + game);
             lobby.startGame(game);
             return;
         }
