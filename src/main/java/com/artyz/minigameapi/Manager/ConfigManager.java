@@ -69,7 +69,8 @@ public class ConfigManager {
             save();
         }
 
-        if (!config.contains("arenas.0")){
+        if (!config.contains("arenas")){
+            config.createSection("arenas.0");
             config.set("arenas.0.world", "world");
             config.set("arenas.0.x", 0.0);
             config.set("arenas.0.y", 0.0);

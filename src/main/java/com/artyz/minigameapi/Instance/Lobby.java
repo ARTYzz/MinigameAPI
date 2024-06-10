@@ -12,10 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.units.qual.C;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Lobby {
 
@@ -23,8 +20,10 @@ public class Lobby {
     private Location spawn;
 
     private List<UUID> players;
+    private HashMap<UUID, Boolean> playerReadyState = new HashMap<>();
     private HashMap<UUID, Team> teams;
     private GameState state;
+    private GameMode gameMode;
     private Countdown countdown;
     private JavaPlugin main;
     private Game game;
@@ -38,7 +37,9 @@ public class Lobby {
 
         this.setGame(game);
         this.state = GameState.RECRUITING;
+        this.gameMode = GameMode.TEAM_SELECT;
         this.players = new ArrayList<>();
+        this.playerReadyState = new HashMap<>();
         this.teams = new HashMap<>();
         this.countdown = new Countdown(main,game,this);
 
@@ -123,17 +124,17 @@ public class Lobby {
         }
 
         players.add(player.getUniqueId());
+        setReady(player,false);
         player.teleport(spawn);
 
-        TreeMultimap<Integer,Team> count = TreeMultimap.create();
-        for (Team team : Team.values()){
-            count.put(getTeamAmount(team),team);
+        player.sendMessage(ChatColor.GRAY + "You have joined the lobby. Initial ready state: " + isReady(player)); // Debug statement
+        if (isReady(player) == false){
+            player.sendMessage(ChatColor.GRAY + "You are now unready </ready> to ready");
         }
 
-        Team lowest = (Team) count.values().toArray()[0];
-        setTeam(player,lowest);
-
-        player.sendMessage(ChatColor.AQUA + "You have been automatically placed on " + lowest.getDisplay() + ChatColor.AQUA + " team.");
+        if (state.equals(GameState.RECRUITING) || state.equals(GameState.COUNTDOWN) && gameMode.equals(GameMode.RANDOM_TEAM)){
+            randomTeam(player);
+        }
 
         if (state.equals(GameState.RECRUITING) && players.size() >= LobbyManager.getRequiredPlayers()){
             countdown.start();
@@ -160,7 +161,12 @@ public class Lobby {
     public String getId(){return id;}
 
     public GameState getState(){return state;}
+
+    public GameMode getGameMode(){return gameMode;}
+
     public List<UUID> getPlayers(){return players;}
+
+    public void setGameMode(GameMode gameMode){this.gameMode = gameMode;}
 
     public void setState(GameState state){this.state = state;}
 
@@ -185,6 +191,42 @@ public class Lobby {
         return amount;
     }
 
+    public void randomTeam(Player player){
+        TreeMultimap<Integer,Team> count = TreeMultimap.create();
+        for (Team team : Team.values()){
+            count.put(getTeamAmount(team),team);
+        }
+
+        Team lowest = (Team) count.values().toArray()[0];
+        setTeam(player,lowest);
+
+        player.sendMessage(ChatColor.AQUA + "You have been automatically placed on " + lowest.getDisplay() + ChatColor.AQUA + " team.");
+    }
+
     public Team getTeam(Player player){return teams.get(player.getUniqueId());}
+
+    /* READY STATE METHODS */
+
+    public void setReady(Player player, boolean isReady) {
+        playerReadyState.put(player.getUniqueId(), isReady);
+    }
+
+    public boolean isReady(Player player) {
+        return playerReadyState.getOrDefault(player.getUniqueId(), false);
+    }
+
+    public int getReadyPlayerCount() {
+        int readyCount = 0;
+        for (boolean isReady : playerReadyState.values()) {
+            if (isReady) {
+                readyCount++;
+            }
+        }
+        return readyCount;
+    }
+
+    public int getUnreadyPlayerCount() {
+        return players.size() - getReadyPlayerCount();
+    }
 
 }

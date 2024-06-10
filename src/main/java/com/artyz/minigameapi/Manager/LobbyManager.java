@@ -105,6 +105,21 @@ public class LobbyManager {
 
     public static int getCountdownSeconds(){return config.getInt("countdown-seconds");}
 
+    public static void setRequiredPlayers(int requiredPlayers){
+
+        config.set("required-players",requiredPlayers);
+        ConfigManager.save();
+
+    }
+
+    public static void setCountdownSeconds(int countdownSeconds){
+
+        config.set("countdown-seconds",countdownSeconds);
+        ConfigManager.save();
+
+    }
+
+
     public static Location getLobbySpawn(){return lobbyLocation;}
 
 }
